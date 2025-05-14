@@ -4,7 +4,7 @@ Item de Configuração: Database Structure and Migrations
 ID: IC-008
 Tipo: Código-fonte
 Versão: 1.0.0
-Repositório: https://github.com/seu-usuario/fynn
+Repositório: https://github.com/faresmts/fynn
 Branch: main
 Commit ID: [Latest Commit ID]
 Mudanças: 

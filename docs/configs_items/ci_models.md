@@ -4,7 +4,7 @@ Item de Configuração: Eloquent Data Models
 ID: IC-016
 Tipo: Código-fonte
 Versão: 1.0.0
-Repositório: https://github.com/seu-usuario/fynn
+Repositório: https://github.com/faresmts/fynn
 Branch: main
 Commit ID: [Latest Commit ID]
 Mudanças: 

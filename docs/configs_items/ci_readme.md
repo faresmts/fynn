@@ -4,7 +4,7 @@ Item de Configuração: Project README and Documentation
 ID: IC-011
 Tipo: Documento
 Versão: 1.0.0
-Repositório: https://github.com/seu-usuario/fynn
+Repositório: https://github.com/faresmts/fynn
 Branch: main
 Commit ID: [Latest Commit ID]
 Mudanças: 

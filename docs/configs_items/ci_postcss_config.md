@@ -4,7 +4,7 @@ Item de Configuração: PostCSS Processing
 ID: IC-005
 Tipo: Configuração
 Versão: 1.0.0
-Repositório: https://github.com/seu-usuario/fynn
+Repositório: https://github.com/faresmts/fynn
 Branch: main
 Commit ID: [Latest Commit ID]
 Mudanças: 
