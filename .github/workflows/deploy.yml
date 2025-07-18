@@ -33,7 +33,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /fynn
+            cd /home/fares/fynn
             
             echo "${{ secrets.PROD_ENV_FILE }}" > .env
 
