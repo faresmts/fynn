@@ -16,9 +16,10 @@
         <!-- Fonts -->
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
 
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
+        <tallstackui:script />
         @livewireStyles
         @livewireScripts
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <!-- CSRF Token -->
         <meta name="csrf-token" content="{{ csrf_token() }}">

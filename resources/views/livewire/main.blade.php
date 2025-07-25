@@ -1,0 +1,38 @@
+<?php
+
+use Livewire\Volt\Component;
+
+new class extends Component {
+
+} ?>
+
+<div>
+    <x-layout>
+        <x-slot:header>
+            <x-layout.header>
+                <x-slot:right>
+                    <x-dropdown text="Hello, {{ auth()->user()->name }}!">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <x-dropdown.items text="Logout" onclick="event.preventDefault(); this.closest('form').submit();" />
+                        </form>
+                    </x-dropdown>
+                </x-slot:right>
+            </x-layout.header>
+        </x-slot:header>
+
+        <x-slot:menu>
+            <x-side-bar>
+                <a href="{{ route('home') }}" class="mb-8">
+                    <x-logo class="w-auto h-12 mx-auto text-green-900" color="#316800"/>
+                </a>
+                <x-side-bar.item text="Dashboard" icon="chart-bar" :route="route('home')" />
+                <x-side-bar.item text="Receipts" icon="arrow-up-circle" :route="route('home')" />
+                <x-side-bar.item text="Fixed Expenses" icon="arrow-down-circle" :route="route('home')" />
+                <x-side-bar.item text="Variable Expenses" icon="credit-card" :route="route('home')" />
+            </x-side-bar>
+        </x-slot:menu>
+
+        <h1>Teste</h1>
+    </x-layout>
+</div>
