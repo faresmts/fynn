@@ -63,6 +63,8 @@ new class extends Component {
 }; ?>
 
 <div>
+    <h1 class="text-4xl mb-4 font-bold">Dashboard</h1>
+
     <div class="flex gap-5">
         <x-stats
             navigate href="{{ route('receipts') }}"
