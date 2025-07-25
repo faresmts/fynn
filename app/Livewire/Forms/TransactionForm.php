@@ -30,11 +30,16 @@ class TransactionForm extends Form
     {
         $this->validate();
 
+        $data = $this->all();
+        $value = $data['value'] ?? 0;
+        $data['value'] = $value / 100;
+
         Transaction::query()->create(
             array_merge(
-                $this->all(),
+                $data,
                 [
                     'is_receipt' => $isReceipt,
+                    'is_debt' => !$isReceipt,
                     'user_id' => auth()->id()
                 ]
             )
@@ -55,7 +60,7 @@ class TransactionForm extends Form
         $this->reset();
     }
 
-    public function setReceipt(Transaction $receipt): void
+    public function setTransaction(Transaction $receipt): void
     {
         $this->source = $receipt->source;
         $this->date = $receipt->date;

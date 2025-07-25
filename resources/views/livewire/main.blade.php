@@ -28,7 +28,7 @@ new class extends Component {
                 </a>
                 <x-side-bar.item wire:navigate text="Dashboard" :current="request()->routeIs('home')" icon="chart-bar" :route="route('home')" />
                 <x-side-bar.item wire:navigate text="Receitas" :current="request()->routeIs('receipts')" icon="arrow-up-circle" :route="route('receipts')" />
-                <x-side-bar.item wire:navigate text="Despesas" :current="request()->routeIs('home')" icon="arrow-down-circle" :route="route('home')" />
+                <x-side-bar.item wire:navigate text="Despesas" :current="request()->routeIs('expenses')" icon="arrow-down-circle" :route="route('expenses')" />
             </x-side-bar>
         </x-slot:menu>
 
@@ -40,6 +40,10 @@ new class extends Component {
             @case(request()->routeIs('receipts'))
                 <livewire:receipts />
                 @break
+
+            @case(request()->routeIs('expenses'))
+                <livewire:expenses />
+            @break
 
             @default
                 <div class="p-4">

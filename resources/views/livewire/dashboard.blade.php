@@ -14,25 +14,31 @@ new class extends Component {
 
     public function prepareChartData(): void
     {
-        $amounts = $this->monthlyAmounts();
+        $amountReceipts = $this->monthlyAmounts();
+        $amountExpenses = $this->monthlyAmounts(false);
         $monthNames = collect(range(1, 12))->map(fn($month) =>
             Carbon::create()->month($month)->translatedFormat('M')
         );
 
-
         $this->chartData = [
             'labels' => $monthNames,
-            'data' => array_values($amounts),
+            'dataReceipts' => array_values($amountReceipts),
+            'dataExpenses' => array_values($amountExpenses),
         ];
     }
 
-    public function monthlyAmounts(): array
+    public function monthlyAmounts(bool $isReceipt = true): array
     {
         $amounts = array_fill(1, 12, 0);
         $year = now()->year;
 
         $monthly = Transaction::query()
-            ->isReceipt()
+            ->when($isReceipt, function ($query) {
+                return $query->isReceipt();
+            })
+            ->when(!$isReceipt, function ($query) {
+                return $query->isDebt();
+            })
             ->selectRaw('EXTRACT(MONTH FROM date) as month, SUM(value) as total')
             ->whereYear('date', $year)
             ->groupByRaw('EXTRACT(MONTH FROM date)')
@@ -48,7 +54,7 @@ new class extends Component {
 
     public function receipts(): array
     {
-        $amounts = $this->monthlyAmounts();
+        $amounts = $this->monthlyAmounts(true);
 
         $currentReceipt = $amounts[date('n')];
         $lastMonthReceipt = $amounts[date('n') - 1] ?? 0;
@@ -57,7 +63,36 @@ new class extends Component {
 
         return [
             'current' => $currentReceiptFormatted,
+            'value' => $currentReceipt,
             'is_increase' => $currentReceipt > $lastMonthReceipt,
+        ];
+    }
+
+    public function debts(): array
+    {
+        $amounts = $this->monthlyAmounts(false);
+
+        $currentDebt = $amounts[date('n')];
+
+        $currentDebtFormatted = 'R$ ' . number_format($currentDebt, 2, ',', '.');
+
+        return [
+            'current' => $currentDebtFormatted,
+            'value' => $currentDebt,
+        ];
+    }
+
+    public function balance(): array
+    {
+        $receipts = $this->receipts()['value'];
+        $debts = $this->debts()['value'];
+
+        $balance = $receipts - $debts;
+        $balanceFormatted = 'R$ ' . number_format($balance, 2, ',', '.');
+
+        return [
+            'formatted' => $balanceFormatted,
+            'value' => $balance,
         ];
     }
 }; ?>
@@ -68,22 +103,35 @@ new class extends Component {
     <div class="flex gap-5">
         <x-stats
             navigate href="{{ route('receipts') }}"
-            title="Total em Receitas do Mês"
+            title="Total de Receitas no Mês"
             icon="arrow-up"
+            color="green"
             number="{{ $this->receipts()['current'] }}"
             :increase="$this->receipts()['is_increase']"
             :decrease="$this->receipts()['is_increase'] === false"
         />
-        <x-stats color="red" title="Total em Despesas do Mês" icon="arrow-down" number="R$ 25,00" decrease/>
-        <x-stats color="green" title="Balanço do Mês" icon="currency-dollar" number="R$ 25,00" decrease/>
+        <x-stats
+            navigate href="{{ route('expenses') }}"
+            title="Total de Despesas no Mês"
+            icon="arrow-up"
+            color="red"
+            number="{{ $this->debts()['current'] }}"
+        />
+        <x-stats
+            title="Balanço do Mês"
+            icon="currency-dollar"
+            color="{{ $this->balance()['value'] < 0 ? 'red' : 'green' }}"
+            number="{{ $this->balance()['formatted']}}"
+        />
     </div>
 
-    <div class="flex gap-10">
-        <div class="mt-5 w-full bg-white p-4 rounded-lg shadow-md">
+    <div class="flex flex-col lg:flex-row gap-10 mt-10 pr-9">
+        <div class="w-1/2 bg-white p-4 rounded-lg shadow-md">
             <canvas id="receiptsByMonthChart"></canvas>
         </div>
-        <div class="mt-5 w-full bg-white p-4 rounded-lg shadow-md">
-            <canvas id="receiptsByMonthChart"></canvas>
+
+        <div class="w-1/2 bg-white p-4 rounded-lg shadow-md">
+            <canvas id="debtsByMonthChart"></canvas>
         </div>
     </div>
 
@@ -91,24 +139,63 @@ new class extends Component {
 
 @script
 <script>
-    const canvasElement = document.getElementById('receiptsByMonthChart');
-    if (canvasElement) {
+    const canvasElementReceipts = document.getElementById('receiptsByMonthChart');
+    if (canvasElementReceipts) {
         const chartData = @json($chartData);
 
-        const existingChart = Chart.getChart(canvasElement);
+        const existingChart = Chart.getChart(canvasElementReceipts);
         if (existingChart) {
             existingChart.destroy();
         }
 
-        new Chart(canvasElement.getContext('2d'), {
+        new Chart(canvasElementReceipts.getContext('2d'), {
             type: 'bar',
             data: {
                 labels: chartData.labels,
                 datasets: [{
                     label: 'Receitas por Mês',
-                    data: chartData.data,
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    borderColor: 'rgba(75, 192, 192, 1)',
+                    data: chartData.dataReceipts,
+                    backgroundColor: 'rgba(49, 104, 0, 0.2)',
+                    borderColor: 'rgba(49, 104, 0, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value, index, ticks) {
+                                return new Intl.NumberFormat('pt-BR', {
+                                    style: 'currency',
+                                    currency: 'BRL'
+                                }).format(value);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    const canvasElementDebts = document.getElementById('debtsByMonthChart');
+    if (canvasElementDebts) {
+        const chartData = @json($chartData);
+
+        const existingChart = Chart.getChart(canvasElementDebts);
+        if (existingChart) {
+            existingChart.destroy();
+        }
+
+        new Chart(canvasElementDebts.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Despesas por Mês',
+                    data: chartData.dataExpenses,
+                    backgroundColor: 'rgba(255 ,92, 80, 0.2)',
+                    borderColor: 'rgba(255 ,92, 80, 1)',
                     borderWidth: 1
                 }]
             },

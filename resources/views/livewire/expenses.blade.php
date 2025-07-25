@@ -18,7 +18,7 @@ new class extends Component {
     public ?string $search = null;
     public ?string $month = '';
 
-    private bool $isReceipt = true;
+    private bool $isReceipt = false;
 
     public function mount(): void
     {
@@ -40,7 +40,7 @@ new class extends Component {
     {
         Transaction::query()->findOrFail($id)->delete();
 
-        $this->toast()->success('Receita deletada com sucesso!')->send();
+        $this->toast()->success('Despesa deletada com sucesso!')->send();
     }
 
     public function with(): array
@@ -63,7 +63,7 @@ new class extends Component {
                         ->orWhere('description', 'like', "%{$this->search}%");
                 })
                 ->whereBetween('date', [$startDate, $endDate])
-                ->isReceipt()
+                ->isDebt()
                 ->orderBy('date')
                 ->paginate($this->quantity)
                 ->withQueryString(),
@@ -75,7 +75,7 @@ new class extends Component {
     {
         $this->form->store($this->isReceipt);
 
-        $this->toast()->success('Receita criada com sucesso!')->send();
+        $this->toast()->success('Despesa criada com sucesso!')->send();
     }
 
     public function edit(Transaction $receipt): void
@@ -89,7 +89,7 @@ new class extends Component {
     {
         $this->form->update($receipt);
 
-        $this->toast()->success('Receita atualizada com sucesso!')->send();
+        $this->toast()->success('Despesa atualizada com sucesso!')->send();
     }
 
     public function clearForm(): void
@@ -104,35 +104,35 @@ new class extends Component {
 
         $previousMonthDate = $selectedDate->copy()->subMonthNoOverflow();
 
-        $currentReceipt = Transaction::query()
-            ->isReceipt()
+        $currentDebt = Transaction::query()
+            ->isDebt()
             ->whereYear('date', $selectedDate->year)
             ->whereMonth('date', $selectedDate->month)
             ->sum('value');
 
-        $lastMonthReceipt = Transaction::query()
-            ->isReceipt()
+        $lastMonthDebt = Transaction::query()
+            ->isDebt()
             ->whereYear('date', $previousMonthDate->year)
             ->whereMonth('date', $previousMonthDate->month)
             ->sum('value');
 
-        $currentReceiptFormatted = 'R$ ' . number_format($currentReceipt, 2, ',', '.');
+        $currentDebtFormatted = 'R$ ' . number_format($currentDebt, 2, ',', '.');
 
         return [
-            'current' => $currentReceiptFormatted,
-            'is_increase' => $currentReceipt > $lastMonthReceipt,
+            'current' => $currentDebtFormatted,
+            'is_increase' => $currentDebt > $lastMonthDebt,
         ];
     }
 }; ?>
 
 <div>
     <div class="flex items-center justify-between mb-8">
-        <h1 class="text-4xl  font-bold">Receitas</h1>
+        <h1 class="text-4xl  font-bold">Despesas</h1>
         <div class="w-80">
             <x-stats
-                title="Total em Receitas do Mês"
-                icon="arrow-up"
-                color="green"
+                title="Total em Despesas do Mês"
+                icon="arrow-down"
+                color="red"
                 number="{{$this->receipts()['current']}}"
                 :increase="$this->receipts()['is_increase']"
                 :decrease="$this->receipts()['is_increase'] === false"
@@ -143,7 +143,7 @@ new class extends Component {
     <div class="mb-5 flex justify-between items-end">
         <div>
             <x-modal id="modal-create-receipts">
-                <h2 class="mb-4">Adicionar Receita</h2>
+                <h2 class="mb-4">Adicionar Despesa</h2>
 
                 <form wire:submit="save">
                     <div>
@@ -155,23 +155,23 @@ new class extends Component {
                                         currency/>
                         </div>
 
-                        <x-button text="Criar" color="primary" type="submit"
+                        <x-button text="Criar" color="red" type="submit"
                                   x-on:click="$modalClose('modal-create-receipts')"/>
                     </div>
                 </form>
             </x-modal>
 
-            <x-button color="green" x-on:click="$modalOpen('modal-create-receipts')" wire:click="clearForm">
+            <x-button color="red" x-on:click="$modalOpen('modal-create-receipts')" wire:click="clearForm">
                 <x-icon name="plus-circle" class="h-5 w-5">
                     <x-slot:right>
-                        Adicionar Receita
+                        Adicionar Despesa
                     </x-slot:right>
                 </x-icon>
             </x-button>
         </div>
 
         <div>
-            <x-date label="Mês da Receita" month-year-only wire:model.live="month"/>
+            <x-date label="Mês da Despesa" month-year-only wire:model.live="month"/>
         </div>
     </div>
     <div>
@@ -180,7 +180,7 @@ new class extends Component {
             <div class="flex gap-2" wire:key="{{ $row->id }}">
                 <div>
                     <x-modal id="modal-update-receipts-{{ $row->id }}">
-                        <h2 class="mb-4 font-bold text-lg">Editar Receita - {{ $row->source }}
+                        <h2 class="mb-4 font-bold text-lg">Editar Despesa - {{ $row->source }}
                             ({{ \Illuminate\Support\Carbon::parse($row->date)->format('d/m/Y') }})</h2>
 
                         <form wire:submit="update({{ $row }})">
