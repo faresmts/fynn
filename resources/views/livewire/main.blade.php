@@ -34,7 +34,7 @@ new class extends Component {
 
         @switch(true)
             @case(request()->routeIs('home'))
-                <h1>Dash</h1>
+                <livewire:dashboard />
                 @break
 
             @case(request()->routeIs('receipts'))
