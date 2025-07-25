@@ -32,6 +32,7 @@ Route::get('/', function () {
 });
 
 Volt::route('/home', 'main')->name('home');
+Volt::route('/receipts', 'main')->name('receipts');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', Login::class)
