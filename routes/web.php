@@ -12,17 +12,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-
 Route::get('/', function () {
     if (!Auth::check()) {
         return redirect(route('login'));
@@ -33,6 +22,7 @@ Route::get('/', function () {
 
 Volt::route('/home', 'main')->name('home');
 Volt::route('/receipts', 'main')->name('receipts');
+Volt::route('/expenses', 'main')->name('expenses');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', Login::class)
