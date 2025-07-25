@@ -26,6 +26,7 @@
     </head>
 
     <body>
+        <x-toast />
         @yield('body')
     </body>
 </html>

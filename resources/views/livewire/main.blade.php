@@ -26,13 +26,26 @@ new class extends Component {
                 <a href="{{ route('home') }}" class="mb-8">
                     <x-logo class="w-auto h-12 mx-auto text-green-900" color="#316800"/>
                 </a>
-                <x-side-bar.item text="Dashboard" icon="chart-bar" :route="route('home')" />
-                <x-side-bar.item text="Receipts" icon="arrow-up-circle" :route="route('home')" />
-                <x-side-bar.item text="Fixed Expenses" icon="arrow-down-circle" :route="route('home')" />
-                <x-side-bar.item text="Variable Expenses" icon="credit-card" :route="route('home')" />
+                <x-side-bar.item wire:navigate text="Dashboard" :current="request()->routeIs('home')" icon="chart-bar" :route="route('home')" />
+                <x-side-bar.item wire:navigate text="Receitas" :current="request()->routeIs('receipts')" icon="arrow-up-circle" :route="route('receipts')" />
+                <x-side-bar.item wire:navigate text="Despesas" :current="request()->routeIs('home')" icon="arrow-down-circle" :route="route('home')" />
             </x-side-bar>
         </x-slot:menu>
 
-        <h1>Teste</h1>
+        @switch(true)
+            @case(request()->routeIs('home'))
+                <h1>Dash</h1>
+                @break
+
+            @case(request()->routeIs('receipts'))
+                <livewire:receipts />
+                @break
+
+            @default
+                <div class="p-4">
+                    <h1 class="text-2xl font-bold">Page not found</h1>
+                </div>
+        @endswitch
+
     </x-layout>
 </div>
