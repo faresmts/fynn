@@ -111,7 +111,7 @@ new class extends Component {
                             <x-date label="Data" format="DD/MM/YYYY" wire:model="form.date"/>
                             <x-input label="Origem" wire:model="form.source"/>
                             <x-input label="Descrição" wire:model="form.description"/>
-                            <x-number label="Valor" step="0.1" min="0" wire:model="form.value"/>
+                            <x-currency label="Valor" step="0.1" min="0" wire:model="form.value" locale="pt-BR"  symbol currency />
                         </div>
 
                         <x-button text="Criar" color="primary" type="submit" x-on:click="$modalClose('modal-create-receipts')"/>
