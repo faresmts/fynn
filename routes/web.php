@@ -10,6 +10,7 @@ use App\Livewire\Auth\Register;
 use App\Livewire\Auth\Verify;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Livewire\Volt\Volt;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,8 +28,10 @@ Route::get('/', function () {
         return redirect(route('login'));
     }
 
-    return 'logged';
-})->name('home');
+    return redirect(\route('home'));
+});
+
+Volt::route('/home', 'main')->name('home');
 
 Route::middleware('guest')->group(function () {
     Route::get('login', Login::class)
